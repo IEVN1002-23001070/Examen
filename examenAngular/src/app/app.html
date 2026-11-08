@@ -1,0 +1,116 @@
+
+<div class="min-h-screen bg-slate-100">
+
+  <!-- ENCABEZADO -->
+  <header class="bg-red-700 text-white shadow-lg">
+
+    <div class="mx-auto max-w-7xl px-6 py-6">
+
+      <h1 class="text-3xl font-bold">
+        🍕 Sistema de Pizzería
+      </h1>
+
+      <p class="mt-2 text-red-100">
+        Registro de pedidos, ventas y reportes
+      </p>
+
+    </div>
+
+  </header>
+
+
+  <!-- CONTENIDO -->
+  <main class="mx-auto max-w-7xl px-4 py-8">
+
+
+    <!-- COMPONENTE 1: FORMULARIO -->
+    <section class="mb-6 overflow-hidden rounded-2xl
+                    border border-red-200 bg-white shadow-md">
+
+      <div class="bg-red-600 px-6 py-4 text-white">
+
+        <h2 class="text-xl font-bold">
+          1. Datos del cliente y selección de pizzas
+        </h2>
+
+      </div>
+
+      <div class="p-6">
+
+        <app-formulario-pedido
+          (pizzaAgregada)="agregarPizza($event)">
+        </app-formulario-pedido>
+
+      </div>
+
+    </section>
+
+
+    <!-- COMPONENTES 2 Y 3 -->
+    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+
+
+      <!-- COMPONENTE 2: DETALLE DEL PEDIDO -->
+      <section class="overflow-hidden rounded-2xl
+                      bg-white shadow-md">
+
+        <div class="bg-slate-900 px-6 py-4 text-white">
+
+          <h2 class="text-xl font-bold">
+            2. Detalle del pedido
+          </h2>
+
+        </div>
+
+        <div class="p-6">
+
+          <app-detalle-pedido
+            [pizzas]="pizzas"
+            [guardando]="guardando"
+            [mensaje]="mensaje"
+            [error]="error"
+            (quitar)="quitarPizza($event)"
+            (terminar)="terminarPedido()">
+          </app-detalle-pedido>
+
+        </div>
+
+      </section>
+
+
+      <!-- COMPONENTE 3: RESUMEN DE VENTAS -->
+      <section class="overflow-hidden rounded-2xl
+                      border border-amber-200
+                      bg-white shadow-md">
+
+        <div class="bg-amber-400 px-6 py-4 text-slate-900">
+
+          <h2 class="text-xl font-bold">
+            3. Resumen de ventas
+          </h2>
+
+        </div>
+
+        <div class="p-6">
+
+          <app-resumen-ventas>
+          </app-resumen-ventas>
+
+        </div>
+
+      </section>
+
+
+    </div>
+
+  </main>
+
+
+  <!-- PIE DE PAGINA -->
+  <footer class="py-6 text-center text-sm text-slate-500">
+
+    Sistema de gestión de pedidos de pizzas
+
+  </footer>
+
+</div>

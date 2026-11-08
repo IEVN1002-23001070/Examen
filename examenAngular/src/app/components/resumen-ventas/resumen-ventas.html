@@ -1,0 +1,592 @@
+
+<div class="space-y-6">
+
+  <!-- VENTAS REGISTRADAS -->
+
+  <div class="flex flex-wrap items-center justify-between gap-3">
+
+    <h3 class="text-lg font-bold text-slate-800">
+      Ventas registradas
+    </h3>
+
+    <button
+      type="button"
+      (click)="cargarVentas()"
+      [disabled]="cargando"
+      class="rounded-lg bg-amber-400 px-4 py-2
+             text-sm font-semibold text-slate-900
+             hover:bg-amber-500 disabled:opacity-50">
+
+      {{ cargando ? 'Actualizando...' : 'Actualizar ventas' }}
+
+    </button>
+
+  </div>
+
+
+  <!-- TARJETAS DE RESUMEN -->
+
+  <div class="grid grid-cols-2 gap-3">
+
+    <div class="rounded-xl bg-amber-50 p-4">
+
+      <p class="text-sm text-slate-600">
+        Pedidos registrados
+      </p>
+
+      <p class="mt-2 text-2xl font-bold text-slate-900">
+        {{ ventas.length }}
+      </p>
+
+    </div>
+
+    <div class="rounded-xl bg-green-50 p-4">
+
+      <p class="text-sm text-slate-600">
+        Ventas acumuladas
+      </p>
+
+      <p class="mt-2 text-2xl font-bold text-green-700">
+        {{ totalAcumulado | currency:'MXN':'symbol-narrow':'1.2-2' }}
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- ESTADOS -->
+
+  @if (cargando) {
+    <p class="text-sm text-slate-500">
+      Actualizando ventas...
+    </p>
+  }
+
+  @if (error) {
+    <p class="rounded-lg bg-red-100 p-3 text-red-700">
+      {{ error }}
+    </p>
+  }
+
+
+  <!-- TABLA DE VENTAS -->
+
+  @if (ventas.length > 0) {
+
+    <div class="overflow-x-auto">
+
+      <table class="w-full text-left text-sm">
+
+        <thead class="bg-amber-100 text-slate-800">
+          <tr>
+            <th class="px-3 py-3">Pedido</th>
+            <th class="px-3 py-3">Cliente</th>
+            <th class="px-3 py-3">Fecha</th>
+            <th class="px-3 py-3">Total</th>
+            <th class="px-3 py-3">Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for (venta of ventas; track venta.idventa) {
+
+            <tr class="border-b border-slate-200">
+
+              <td class="px-3 py-3 font-semibold">
+                #{{ venta.idventa }}
+              </td>
+
+              <td class="px-3 py-3">
+                {{ venta.nombre_cliente }}
+              </td>
+
+              <td class="px-3 py-3">
+                {{ venta.fecha_pedido }}
+              </td>
+
+              <td class="px-3 py-3 font-semibold text-green-700">
+                {{ venta.total | currency:'MXN':'symbol-narrow':'1.2-2' }}
+              </td>
+
+              <td class="px-3 py-3">
+
+                <button
+                  type="button"
+                  (click)="verDetalle(venta.idventa)"
+                  [disabled]="cargandoDetalle"
+                  class="rounded-lg bg-slate-900 px-3 py-2
+                         text-xs font-semibold text-white
+                         hover:bg-slate-700 disabled:opacity-50">
+
+                  Ver detalle
+
+                </button>
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  } @else if (!cargando && !error) {
+
+    <p class="rounded-lg bg-slate-50 p-5
+              text-center text-sm text-slate-500">
+      Todavía no hay ventas registradas.
+    </p>
+
+  }
+
+
+  <!-- DETALLE DE UN PEDIDO -->
+
+  @if (cargandoDetalle) {
+    <p class="text-sm text-slate-500">
+      Consultando detalles del pedido...
+    </p>
+  }
+
+  @if (errorDetalle) {
+    <p class="rounded-lg bg-red-100 p-3 text-red-700">
+      {{ errorDetalle }}
+    </p>
+  }
+
+  @if (ventaSeleccionada; as venta) {
+
+    <div class="rounded-xl border border-amber-200
+                bg-amber-50 p-4">
+
+      <div class="mb-4 flex items-center justify-between gap-3">
+
+        <h4 class="font-bold text-slate-900">
+          Detalle del pedido #{{ venta.idventa }}
+        </h4>
+
+        <button
+          type="button"
+          (click)="cerrarDetalle()"
+          class="rounded-lg bg-white px-3 py-2
+                 text-sm text-slate-700 hover:bg-slate-100">
+          Cerrar
+        </button>
+
+      </div>
+
+      <div class="mb-4 space-y-2 text-sm text-slate-700">
+
+        <p><strong>Cliente:</strong> {{ venta.nombre_cliente }}</p>
+
+        <p><strong>Teléfono:</strong> {{ venta.telefono }}</p>
+
+        <p><strong>Dirección:</strong> {{ venta.direccion }}</p>
+
+        <p><strong>Fecha:</strong> {{ venta.fecha_pedido }}</p>
+
+      </div>
+
+      <div class="overflow-x-auto">
+
+        <table class="w-full text-left text-sm">
+
+          <thead class="bg-white">
+            <tr>
+              <th class="px-2 py-3">Tamaño</th>
+              <th class="px-2 py-3">Ingredientes</th>
+              <th class="px-2 py-3">Cant.</th>
+              <th class="px-2 py-3">Precio</th>
+              <th class="px-2 py-3">Subtotal</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (detalle of detalles; track detalle.iddetalle) {
+
+              <tr class="border-b border-amber-200">
+
+                <td class="px-2 py-3 capitalize">
+                  {{ detalle.tamano }}
+                </td>
+
+                <td class="px-2 py-3">
+                  {{ detalle.ingredientes || 'Sin extras' }}
+                </td>
+
+                <td class="px-2 py-3">
+                  {{ detalle.cantidad }}
+                </td>
+
+                <td class="px-2 py-3">
+                  {{ detalle.precio_unitario | currency:'MXN':'symbol-narrow':'1.2-2' }}
+                </td>
+
+                <td class="px-2 py-3 font-semibold">
+                  {{ detalle.subtotal | currency:'MXN':'symbol-narrow':'1.2-2' }}
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <div class="mt-4 text-right">
+
+        <p class="text-sm text-slate-600">
+          Total de la venta
+        </p>
+
+        <p class="text-2xl font-bold text-green-700">
+          {{ venta.total | currency:'MXN':'symbol-narrow':'1.2-2' }}
+        </p>
+
+      </div>
+
+    </div>
+
+  }
+
+
+  <!-- REPORTES DE VENTAS -->
+
+  <section class="space-y-5 border-t border-slate-200 pt-6">
+
+    <div>
+      <h3 class="text-lg font-bold text-slate-800">
+        Reportes de ventas
+      </h3>
+
+      <p class="mt-1 text-sm text-slate-500">
+        Busca ventas por nombre del día o del mes.
+      </p>
+    </div>
+
+
+    <!-- SELECCIONAR TIPO DE BUSQUEDA -->
+
+    <div class="flex flex-wrap gap-3">
+
+      <button
+        type="button"
+        (click)="seleccionarTipo('dia')"
+        [class.bg-amber-400]="tipoSeleccionado === 'dia'"
+        [class.bg-slate-100]="tipoSeleccionado !== 'dia'"
+        class="rounded-lg px-4 py-3
+               text-sm font-semibold text-slate-900
+               hover:bg-amber-300">
+
+        Por día de la semana
+
+      </button>
+
+      <button
+        type="button"
+        (click)="seleccionarTipo('mes')"
+        [class.bg-amber-400]="tipoSeleccionado === 'mes'"
+        [class.bg-slate-100]="tipoSeleccionado !== 'mes'"
+        class="rounded-lg px-4 py-3
+               text-sm font-semibold text-slate-900
+               hover:bg-amber-300">
+
+        Por mes
+
+      </button>
+
+    </div>
+
+
+    <!-- BUSCADOR DE TEXTO -->
+
+    <div class="rounded-xl border border-amber-200
+                bg-amber-50 p-4">
+
+      <h4 class="mb-3 font-semibold text-slate-800">
+        Buscar ventas específicas
+      </h4>
+
+      <label class="mb-2 block text-sm font-medium text-slate-700">
+
+        {{ tipoSeleccionado === 'dia'
+          ? 'Escribe el día de la semana'
+          : 'Escribe el nombre del mes' }}
+
+      </label>
+
+      <div class="flex flex-col gap-3 sm:flex-row">
+
+        <input
+          type="text"
+          [formControl]="busqueda"
+          (keyup.enter)="buscarVentas()"
+          [placeholder]="tipoSeleccionado === 'dia'
+            ? 'Ejemplo: lunes, martes o sábado'
+            : 'Ejemplo: enero, junio o noviembre'"
+          class="block w-full flex-1 rounded-lg
+                 border border-slate-300 bg-white
+                 p-3 text-slate-900
+                 focus:border-amber-400
+                 focus:ring-amber-400">
+
+        <button
+          type="button"
+          (click)="buscarVentas()"
+          [disabled]="cargandoConsulta"
+          class="rounded-lg bg-slate-900 px-5 py-3
+                 font-semibold text-white
+                 hover:bg-slate-700 disabled:opacity-50">
+
+          {{ cargandoConsulta ? 'Consultando...' : 'Buscar ventas' }}
+
+        </button>
+
+        <button
+          type="button"
+          (click)="limpiarBusqueda()"
+          class="rounded-lg border border-slate-300
+                 bg-white px-4 py-3
+                 font-medium text-slate-700
+                 hover:bg-slate-100">
+
+          Limpiar
+
+        </button>
+
+      </div>
+
+      <p class="mt-2 text-xs text-slate-500">
+        Puedes escribir en mayúsculas o minúsculas,
+        con o sin acentos.
+      </p>
+
+    </div>
+
+
+    <!-- RESULTADO DE LA BUSQUEDA -->
+
+    @if (errorConsulta) {
+      <p class="rounded-lg bg-red-100 p-3 text-red-700">
+        {{ errorConsulta }}
+      </p>
+    }
+
+    @if (consultaResultado; as consulta) {
+
+      <div class="rounded-xl border border-slate-200 p-4">
+
+        <h4 class="mb-3 font-bold text-slate-800">
+          Ventas de {{ consulta.nombre }}
+        </h4>
+
+        <div class="mb-4 grid grid-cols-2 gap-3">
+
+          <div class="rounded-lg bg-slate-50 p-3">
+
+            <p class="text-xs text-slate-500">
+              Pedidos encontrados
+            </p>
+
+            <p class="text-xl font-bold">
+              {{ consulta.cantidad_pedidos }}
+            </p>
+
+          </div>
+
+          <div class="rounded-lg bg-green-50 p-3">
+
+            <p class="text-xs text-slate-500">
+              Total acumulado
+            </p>
+
+            <p class="text-xl font-bold text-green-700">
+              {{ consulta.total_acumulado | currency:'MXN':'symbol-narrow':'1.2-2' }}
+            </p>
+
+          </div>
+
+        </div>
+
+        @if (consulta.ventas.length === 0) {
+
+          <p class="text-sm text-slate-500">
+            No hay ventas registradas para este periodo.
+          </p>
+
+        } @else {
+
+          <div class="overflow-x-auto">
+
+            <table class="w-full text-left text-sm">
+
+              <thead class="bg-slate-100">
+                <tr>
+                  <th class="px-2 py-3">Pedido</th>
+                  <th class="px-2 py-3">Cliente</th>
+                  <th class="px-2 py-3">Fecha</th>
+                  <th class="px-2 py-3">Total</th>
+                  <th class="px-2 py-3">Acción</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                @for (venta of consulta.ventas; track venta.idventa) {
+
+                  <tr class="border-b border-slate-200">
+
+                    <td class="px-2 py-3">
+                      #{{ venta.idventa }}
+                    </td>
+
+                    <td class="px-2 py-3">
+                      {{ venta.nombre_cliente }}
+                    </td>
+
+                    <td class="px-2 py-3">
+                      {{ venta.fecha_pedido }}
+                    </td>
+
+                    <td class="px-2 py-3 font-semibold">
+                      {{ venta.total | currency:'MXN':'symbol-narrow':'1.2-2' }}
+                    </td>
+
+                    <td class="px-2 py-3">
+
+                      <button
+                        type="button"
+                        (click)="verDetalle(venta.idventa)"
+                        [disabled]="cargandoDetalle"
+                        class="rounded-lg bg-slate-900
+                               px-3 py-2 text-xs font-semibold
+                               text-white hover:bg-slate-700">
+
+                        Ver detalle
+
+                      </button>
+
+                    </td>
+
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        }
+
+      </div>
+
+    }
+
+
+    <!-- RESUMEN ACUMULADO GENERAL -->
+
+    <div class="border-t border-slate-200 pt-5">
+
+      <h4 class="mb-2 font-bold text-slate-800">
+        Resumen acumulado
+        {{ tipoReporte === 'dia'
+          ? 'por día de la semana'
+          : 'por mes' }}
+      </h4>
+
+      <p class="h-5 text-xs text-slate-500">
+        {{ cargandoReporte ? 'Actualizando reporte...' : '' }}
+      </p>
+
+      @if (errorReporte) {
+        <p class="rounded-lg bg-red-100 p-3 text-red-700">
+          {{ errorReporte }}
+        </p>
+      }
+
+      <div class="min-h-[230px]">
+
+        @if (reportes.length > 0) {
+
+          <div class="overflow-x-auto">
+
+            <table class="w-full text-left text-sm">
+
+              <thead class="bg-amber-100 text-slate-800">
+                <tr>
+                  <th class="px-3 py-3">
+                    {{ tipoReporte === 'dia' ? 'Día' : 'Mes' }}
+                  </th>
+                  <th class="px-3 py-3">Pedidos</th>
+                  <th class="px-3 py-3">Ventas acumuladas</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                @for (reporte of reportes; track reporte.nombre) {
+
+                  <tr class="border-b border-slate-200">
+
+                    <td class="px-3 py-3 font-semibold">
+                      {{ reporte.nombre }}
+                    </td>
+
+                    <td class="px-3 py-3">
+                      {{ reporte.cantidad_pedidos }}
+                    </td>
+
+                    <td class="px-3 py-3 font-bold text-green-700">
+                      {{ reporte.total_ventas | currency:'MXN':'symbol-narrow':'1.2-2' }}
+                    </td>
+
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+          <div class="mt-4 rounded-xl bg-slate-900 p-4 text-white">
+
+            <p class="text-sm text-slate-300">
+              Total acumulado
+            </p>
+
+            <p class="mt-1 text-2xl font-bold">
+              {{ totalReportado | currency:'MXN':'symbol-narrow':'1.2-2' }}
+            </p>
+
+          </div>
+
+        } @else if (!cargandoReporte && !errorReporte) {
+
+          <p class="rounded-lg bg-slate-50 p-4
+                    text-center text-sm text-slate-500">
+            No hay ventas para mostrar.
+          </p>
+
+        }
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
